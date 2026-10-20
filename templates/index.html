@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NM.CDX Dashboard</title>
+    <style>
+        body { background: #0a0a12; color: #fff; font-family: monospace; padding: 20px; }
+        .card { background: #1a1a2e; border: 1px solid #333; padding: 15px; margin-bottom: 10px; border-radius: 8px; }
+        button { background: #e94560; color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px; }
+        input { padding: 8px; background: #0f0f1a; border: 1px solid #333; color: white; margin-bottom: 10px; width: 100%; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+    <h1>👑 NM.CDX BOT DASHBOARD</h1>
+    <div class="card">
+        <h3>Tambah Akun</h3>
+        <input type="text" id="uid" placeholder="UID">
+        <input type="password" id="pass" placeholder="Password (Kosongkan jika pakai Token)">
+        <input type="text" id="token" placeholder="Token">
+        <button onclick="addAccount()">Tambah</button>
+    </div>
+    <div class="card">
+        <h3>Status Bot</h3>
+        <div id="stats">Memuat data...</div>
+    </div>
+    <script>
+        async function addAccount() {
+            const uid = document.getElementById('uid').value;
+            const password = document.getElementById('pass').value;
+            const token = document.getElementById('token').value;
+            let body = token ? {token} : {uid, password};
+            await fetch('/api/account/add', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+            alert('Akun ditambahkan!'); location.reload();
+        }
+        async function fetchStats() {
+            const res = await fetch('/api/stats');
+            const data = await res.json();
+            document.getElementById('stats').innerHTML = `Total Akun: ${data.total_accounts} | Match: ${data.total_matches}<br><br>` + 
+                data.logs.slice(-5).map(l => `[${l.time}] ${l.message}`).join('<br>');
+        }
+        setInterval(fetchStats, 5000);
+        fetchStats();
+    </script>
+</body>
+</html>
